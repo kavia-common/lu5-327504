@@ -18,6 +18,7 @@
 #include "bindings/camera.h"
 #include "bindings/typography.h"
 #include "bindings/image.h"
+#include "bindings/deltaapi2.h"
 
 static void lu5_register_constants(lua_State *L) 
 {
@@ -192,6 +193,9 @@ void lu5_register_symbols(lua_State *L)
 	lu5_image_bind(L);
 	LUA_ADD_FUNCTION(L, image);
 	LUA_ADD_FUNCTION(L, loadImage);
+
+	// DeltaAPI-2 (robot/control endpoints)
+	lu5_bind_deltaapi2(L);
 
 	// OOP
 	LUA_ADD_FUNCTION_BY_NAME(L, "class", lu5_class);
