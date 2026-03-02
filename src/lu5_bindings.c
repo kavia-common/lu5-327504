@@ -19,6 +19,16 @@
 #include "bindings/typography.h"
 #include "bindings/image.h"
 
+/* Delta Robot API bindings */
+#include "bindings/delta_io.h"
+#include "bindings/delta_motion.h"
+#include "bindings/delta_speed.h"
+#include "bindings/delta_timing.h"
+#include "bindings/delta_point.h"
+#include "bindings/delta_modbus.h"
+#include "bindings/delta_socket.h"
+#include "bindings/delta_tasks.h"
+
 static void lu5_register_constants(lua_State *L) 
 {
 	LUA_ADD_NUMBER_GLOBAL_BY_NAME(L, "LEFT_ARROW" , LU5_KEY_LEFT_ARROW);
@@ -216,4 +226,77 @@ void lu5_register_symbols(lua_State *L)
 	LUA_ADD_FUNCTION_BY_NAME(L, "constrain", lu5_constrain);
 
 	lu5_register_constants(L);
+
+	/* ------------------------------------------------------------------ *
+	 * Delta Robot API Bindings
+	 * All functions correspond to the Delta controller language specification
+	 * from DeltaAPI-2.txt. Hardware-dependent functions are stubs that emit
+	 * LU5_WARN and return safe defaults so Delta scripts run in lu5.
+	 * ------------------------------------------------------------------ */
+
+	/* GROUP 1: Digital I/O */
+	LUA_ADD_FUNCTION(L, DI);
+	LUA_ADD_FUNCTION(L, DO);
+	LUA_ADD_FUNCTION(L, ExtDI);
+	LUA_ADD_FUNCTION(L, ExtDO);
+
+	/* GROUP 2: Motion commands */
+	LUA_ADD_FUNCTION(L, MovP);
+	LUA_ADD_FUNCTION(L, MovL);
+	LUA_ADD_FUNCTION(L, MovJ);
+
+	/* GROUP 3: Speed and acceleration setters */
+	LUA_ADD_FUNCTION(L, SpdJ);
+	LUA_ADD_FUNCTION(L, AccJ);
+	LUA_ADD_FUNCTION(L, DecJ);
+	LUA_ADD_FUNCTION(L, SpdL);
+	LUA_ADD_FUNCTION(L, AccL);
+	LUA_ADD_FUNCTION(L, DecL);
+
+	/* GROUP 4: Accuracy mode */
+	LUA_ADD_FUNCTION(L, Accur);
+
+	/* GROUP 5: Timing and flow control */
+	LUA_ADD_FUNCTION(L, DELAY);
+	LUA_ADD_FUNCTION(L, WAIT);
+
+	/* GROUP 6: Point management */
+	LUA_ADD_FUNCTION(L, SetGlobalPoint);
+	LUA_ADD_FUNCTION(L, ReadPoint);
+
+	/* GROUP 7: Modbus register access */
+	LUA_ADD_FUNCTION(L, ReadModbus);
+	LUA_ADD_FUNCTION(L, WriteModbus);
+
+	/* GROUP 8: Socket communication */
+	delta_socket_register_metatable(L);
+	LUA_ADD_FUNCTION_BY_NAME(L, "SocketClass",    delta_SocketClass);
+	LUA_ADD_FUNCTION_BY_NAME(L, "SocketServer",   delta_SocketServer);
+	LUA_ADD_FUNCTION_BY_NAME(L, "CheckAllStatus", delta_CheckAllStatus);
+	LUA_ADD_FUNCTION_BY_NAME(L, "SocketVersion",  delta_SocketVersion);
+
+	/* Socket error code constants */
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_OK",               0x0000);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_SESSION",      0x0001);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_BUSY",         0x0002);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_SEND_FAIL",    0x0003);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_PKT_SHORT",    0x0007);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_ROLE",         0x0008);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_CONN_FULL",    0x0009);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_CHAN",         0x000A);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_NULL_ADDR",    0x000B);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_PORT_RANGE",   0x000C);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_CREATE",       0x000D);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_BIND",         0x000E);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_LISTEN",       0x0011);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_CONN_REFUSED", 0x0012);
+	LUA_ADD_INTEGER_GLOBAL_BY_NAME(L, "SOCKET_ERR_NO_END_CODE",  0x0031);
+
+	/* GROUP 9: Multi-task cooperative execution */
+	LUA_ADD_FUNCTION(L, AuxTasksAdd);
+	LUA_ADD_FUNCTION(L, AuxTasks);
+
+	/* GROUP 10: Utility aliases for Delta script compatibility */
+	/* split() is a C implementation; tonumber and pcall are Lua built-ins. */
+	LUA_ADD_FUNCTION_BY_NAME(L, "split", lu5_split);
 }
