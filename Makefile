@@ -115,7 +115,8 @@ else ifeq ($(PLATFORM), win)
 		-lglu32\
 		-lgdi32\
 		-lopengl32\
-		-llua
+		-llua\
+		-lws2_32
 
 	DLL_FILES = \
 		zlib1.dll \
